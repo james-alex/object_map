@@ -63,10 +63,7 @@ class ObjectMap<K, T> {
 
   /// Registers a new change callback associated with the
   /// given [key] and type ([R]).
-  void addChangeCallback<R>(
-    ObjectChanged<T> callback, {
-    K key,
-  }) {
+  void addChangeCallback<R>(ObjectChanged<T> callback, {K key}) {
     assert(callback != null);
 
     if (_changeCallbacks.containsKey(key)) {
@@ -88,10 +85,12 @@ class ObjectMap<K, T> {
 
   /// Removes the last added change callback associated with the
   /// given [key] and type ([R]).
-  void removeChangeCallback<R>({K key}) {
+  void removeChangeCallback<R>(ObjectChanged<T> callback, {K key}) {
+    assert(callback != null);
+
     if (_changeCallbacks.containsKey(key)) {
       if (_changeCallbacks[key].containsKey(R)) {
-        _changeCallbacks[key][R].removeLast();
+        _changeCallbacks[key][R].remove(callback);
         if (_changeCallbacks[key][R].isEmpty) {
           _changeCallbacks[key].remove(R);
           if (_changeCallbacks[key].isEmpty) {
@@ -110,10 +109,7 @@ class ObjectMap<K, T> {
   ///
   /// Global callbacks are called when any object associated with the
   /// [key] is modified, regardless of the objects' associated [Type].
-  void addGlobalChangeCallback(
-    ObjectChanged<T> callback, {
-    K key,
-  }) {
+  void addGlobalChangeCallback(ObjectChanged<T> callback, {K key}) {
     assert(callback != null);
 
     if (_globalChangeCallbacks.containsKey(key)) {
@@ -127,9 +123,11 @@ class ObjectMap<K, T> {
 
   /// Removes the last added global change callback associated
   /// with the given [key].
-  void removeGlobalChangeCallback({K key}) {
+  void removeGlobalChangeCallback(ObjectChanged<T> callback, {K key}) {
+    assert(callback != null);
+
     if (_globalChangeCallbacks.containsKey(key)) {
-      _globalChangeCallbacks[key].removeLast();
+      _globalChangeCallbacks[key].remove(callback);
       if (_globalChangeCallbacks[key].isEmpty) {
         _globalChangeCallbacks.remove(key);
       }
