@@ -77,8 +77,8 @@ mixin _GetObjectsByAncestorType<T> on s.ObjectMap<Key, T> {
     var currentDepth = 1;
 
     context.visitAncestorElements((element) {
-      final object = matchAncestorElementByType(
-          element, types, key: key, depth: currentDepth);
+      final object = matchAncestorElementByType(element, types,
+          key: key, depth: currentDepth);
 
       if (object != null) {
         foundObjects.add(object);

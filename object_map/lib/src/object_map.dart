@@ -119,7 +119,9 @@ class ObjectMap<K, T> {
     if (_globalChangeCallbacks.containsKey(key)) {
       _globalChangeCallbacks[key].add(callback);
     } else {
-      _globalChangeCallbacks.addAll({key: [callback]});
+      _globalChangeCallbacks.addAll({
+        key: [callback],
+      });
     }
   }
 
