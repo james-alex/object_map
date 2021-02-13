@@ -1,3 +1,7 @@
+## [1.0.0-nullsafety] - February 13, 2021
+
+* Migrated to null-safe code.
+
 ## [0.1.1] - February 13, 2021
 
 * Updated to object_map v0.1.1, which added the [callback] argument to

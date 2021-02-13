@@ -6,13 +6,13 @@ version: 0.1.1
 homepage: https://github.com/james-alex/object_map
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0-0 <3.0.0"
   flutter: ">=1.17.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  object_map: ^0.1.1
+  object_map: ^1.0.0-nullsafety
 
 dev_dependencies:
   pedantic: ^1.9.2

@@ -2,27 +2,27 @@
 /// methods to add, remove, retrieve objects from, and update the map.
 class ObjectMap<K, T> {
   /// The private 2-dimensional map containing the stored objects.
-  final Map<K, Map<Type, T>> objects = <K, Map<Type, T>>{};
+  final Map<K?, Map<Type?, T>> objects = <K?, Map<Type?, T>>{};
 
   /// Returns `true` if the map contains the given [key].
-  bool containsKey({K key}) => objects.containsKey(key);
+  bool containsKey({K? key}) => objects.containsKey(key);
 
   /// Returns `true` if the map contains an object associated
   /// with the given [key] and type ([R]).
-  bool exists<R>({K key}) =>
-      containsKey(key: key) && objects[key].containsKey(R);
+  bool exists<R>({K? key}) =>
+      containsKey(key: key) && objects[key]!.containsKey(R);
 
   /// Returns the object in the map associated with the
   /// given [key] and type ([R]).
-  T get<R>({K key}) => exists<R>(key: key) ? objects[key][R] : null;
+  T? get<R>({K? key}) => exists<R>(key: key) ? objects[key]![R] : null;
 
   /// Adds [object] to the map linked to the given [key] and type ([R]).
-  T add<R>(T object, {K key}) {
+  T add<R>(T object, {K? key}) {
     final mapEntry = {R: object};
 
     // Add/update the object in the map.
     if (objects.containsKey(key)) {
-      objects[key].addAll(mapEntry);
+      objects[key]!.addAll(mapEntry);
     } else {
       objects.addAll({key: mapEntry});
     }
@@ -35,14 +35,14 @@ class ObjectMap<K, T> {
 
   /// Removes and returns the object associated with
   /// the given [key] and type ([R]).
-  T remove<R>({K key}) {
-    T removedObject;
+  T? remove<R>({K? key}) {
+    T? removedObject;
 
     if (objects.containsKey(key)) {
-      if (objects[key].containsKey(R)) {
+      if (objects[key]!.containsKey(R)) {
         // Remove the object from the map, if it exists.
-        removedObject = objects[key].remove(R);
-        if (objects[key].isEmpty) objects.remove(key);
+        removedObject = objects[key]!.remove(R);
+        if (objects[key]!.isEmpty) objects.remove(key);
 
         // Provide any change callbacks with a `null` value.
         _callChangeCallbacks<R>(null, key: key);
@@ -53,24 +53,23 @@ class ObjectMap<K, T> {
   }
 
   /// The map containing every active change callback.
-  final Map<K, Map<Type, List<ObjectChanged<T>>>> _changeCallbacks =
-      <K, Map<Type, List<ObjectChanged<T>>>>{};
+  final Map<K?, Map<Type?, List<ObjectChanged<T>>>> _changeCallbacks =
+      <K?, Map<Type?, List<ObjectChanged<T>>>>{};
 
   /// Returns true if there are any change callbacks associated with
   /// the given [key] and type ([R]).
-  bool hasChangeCallback<R>({K key}) =>
-      _changeCallbacks.containsKey(key) && _changeCallbacks[key].containsKey(R);
+  bool hasChangeCallback<R>({K? key}) =>
+      _changeCallbacks.containsKey(key) &&
+      _changeCallbacks[key]!.containsKey(R);
 
   /// Registers a new change callback associated with the
   /// given [key] and type ([R]).
-  void addChangeCallback<R>(ObjectChanged<T> callback, {K key}) {
-    assert(callback != null);
-
+  void addChangeCallback<R>(ObjectChanged<T> callback, {K? key}) {
     if (_changeCallbacks.containsKey(key)) {
-      if (_changeCallbacks[key].containsKey(R)) {
-        _changeCallbacks[key][R].add(callback);
+      if (_changeCallbacks[key]!.containsKey(R)) {
+        _changeCallbacks[key]![R]!.add(callback);
       } else {
-        _changeCallbacks[key].addAll({
+        _changeCallbacks[key]!.addAll({
           R: [callback]
         });
       }
@@ -85,15 +84,13 @@ class ObjectMap<K, T> {
 
   /// Removes the last added change callback associated with the
   /// given [key] and type ([R]).
-  void removeChangeCallback<R>(ObjectChanged<T> callback, {K key}) {
-    assert(callback != null);
-
+  void removeChangeCallback<R>(ObjectChanged<T> callback, {K? key}) {
     if (_changeCallbacks.containsKey(key)) {
-      if (_changeCallbacks[key].containsKey(R)) {
-        _changeCallbacks[key][R].remove(callback);
-        if (_changeCallbacks[key][R].isEmpty) {
-          _changeCallbacks[key].remove(R);
-          if (_changeCallbacks[key].isEmpty) {
+      if (_changeCallbacks[key]!.containsKey(R)) {
+        _changeCallbacks[key]![R]!.remove(callback);
+        if (_changeCallbacks[key]![R]!.isEmpty) {
+          _changeCallbacks[key]!.remove(R);
+          if (_changeCallbacks[key]!.isEmpty) {
             _changeCallbacks.remove(key);
           }
         }
@@ -102,18 +99,16 @@ class ObjectMap<K, T> {
   }
 
   /// The map containing every active global change callback.
-  final Map<K, List<ObjectChanged<T>>> _globalChangeCallbacks =
-      <K, List<ObjectChanged<T>>>{};
+  final Map<K?, List<ObjectChanged<T>>> _globalChangeCallbacks =
+      <K?, List<ObjectChanged<T>>>{};
 
   /// Registers a new global change callback with the given [key].
   ///
   /// Global callbacks are called when any object associated with the
   /// [key] is modified, regardless of the objects' associated [Type].
-  void addGlobalChangeCallback(ObjectChanged<T> callback, {K key}) {
-    assert(callback != null);
-
+  void addGlobalChangeCallback(ObjectChanged<T> callback, {K? key}) {
     if (_globalChangeCallbacks.containsKey(key)) {
-      _globalChangeCallbacks[key].add(callback);
+      _globalChangeCallbacks[key]!.add(callback);
     } else {
       _globalChangeCallbacks.addAll({
         key: [callback],
@@ -123,12 +118,10 @@ class ObjectMap<K, T> {
 
   /// Removes the last added global change callback associated
   /// with the given [key].
-  void removeGlobalChangeCallback(ObjectChanged<T> callback, {K key}) {
-    assert(callback != null);
-
+  void removeGlobalChangeCallback(ObjectChanged<T> callback, {K? key}) {
     if (_globalChangeCallbacks.containsKey(key)) {
-      _globalChangeCallbacks[key].remove(callback);
-      if (_globalChangeCallbacks[key].isEmpty) {
+      _globalChangeCallbacks[key]!.remove(callback);
+      if (_globalChangeCallbacks[key]!.isEmpty) {
         _globalChangeCallbacks.remove(key);
       }
     }
@@ -137,17 +130,17 @@ class ObjectMap<K, T> {
   /// Calls any registered change callbacks associated with the
   /// given [key] and type ([R]), as well as any global change
   /// callbacks assocaited with the [key].
-  void _callChangeCallbacks<R>(T object, {K key}) {
+  void _callChangeCallbacks<R>(T? object, {K? key}) {
     // Call any associated explicitly typed callbacks.
     if (hasChangeCallback<R>(key: key)) {
-      for (var callback in _changeCallbacks[key][R]) {
+      for (var callback in _changeCallbacks[key]![R]!) {
         callback(object);
       }
     }
 
     // Call any registered global callbacks.
     if (_globalChangeCallbacks.containsKey(key)) {
-      for (var callback in _globalChangeCallbacks[key]) {
+      for (var callback in _globalChangeCallbacks[key]!) {
         callback(object);
       }
     }
@@ -169,11 +162,11 @@ class MergeableObjectMap<K, T extends MergeableObject<T>>
   /// will be [merge]d with the returned object, if a [dynamic] typed object
   /// exists.
   @override
-  T get<R>({K key, JoinMethod joinDynamic}) {
+  T? get<R>({K? key, JoinMethod? joinDynamic}) {
     var object = super.get<R>(key: key);
 
     if (R != dynamic && joinDynamic != null && exists<dynamic>(key: key)) {
-      object = object.merge(super.get<dynamic>(key: key));
+      object = object!.merge(super.get<dynamic>(key: key)!);
     }
 
     return object;
@@ -186,10 +179,7 @@ class MergeableObjectMap<K, T extends MergeableObject<T>>
   /// ([R]), if one exists. If `null`, the new [object] will overwrite the
   /// existing object.
   @override
-  T add<R>(T object, {K key, JoinMethod join}) {
-    assert(object != null);
-    assert(merge != null);
-
+  T add<R>(T object, {K? key, JoinMethod? join}) {
     if (join != null) {
       return merge<R>(object, key: key);
     }
@@ -203,13 +193,11 @@ class MergeableObjectMap<K, T extends MergeableObject<T>>
   ///
   /// If no object exists with the associated [key] and type ([R]),
   /// the [object] will be [add]ed to the map.
-  T merge<R>(T object, {K key}) {
-    assert(object != null);
-
+  T merge<R>(T object, {K? key}) {
     if (exists<R>(key: key)) {
       // Merge the existing object into the new [object].
-      final mergedObject = object.merge(objects[key][R]);
-      objects[key][R] = mergedObject;
+      final mergedObject = object.merge(objects[key]![R]!);
+      objects[key]![R] = mergedObject;
 
       // Provide any associated change callbacks with the merged object.
       _callChangeCallbacks<R>(mergedObject, key: key);
@@ -229,17 +217,15 @@ class MergeableObjectMap<K, T extends MergeableObject<T>>
   @override
   void addChangeCallback<R>(
     ObjectChanged<T> callback, {
-    K key,
-    JoinMethod joinDynamic,
+    K? key,
+    JoinMethod? joinDynamic,
   }) {
-    assert(callback != null);
-
     if (joinDynamic != null) {
       callback = (object) {
         if (exists<dynamic>(key: key)) {
           final dynamicObject =
-              get<dynamic>(key: key, joinDynamic: joinDynamic);
-          callback(object.merge(dynamicObject));
+              get<dynamic>(key: key, joinDynamic: joinDynamic)!;
+          callback(object!.merge(dynamicObject));
         }
       };
     }
@@ -277,14 +263,14 @@ class JoinableObjectMap<K, T extends JoinableObject<T>>
   /// will be [merge]d or [combine]d with the returned object, if a [dynamic]
   /// typed object exists.
   @override
-  T get<R>({K key, JoinMethod joinDynamic}) {
+  T? get<R>({K? key, JoinMethod? joinDynamic}) {
     var object = super.get<R>(key: key);
 
     if (R != dynamic && joinDynamic != null && exists<dynamic>(key: key)) {
       if (joinDynamic == JoinMethod.merge) {
-        object = object.merge(super.get<dynamic>(key: key));
+        object = object!.merge(super.get<dynamic>(key: key)!);
       } else {
-        object = object.combine(super.get<dynamic>(key: key));
+        object = object!.combine(super.get<dynamic>(key: key)!);
       }
     }
 
@@ -298,9 +284,7 @@ class JoinableObjectMap<K, T extends JoinableObject<T>>
   /// type ([R]), if it exists. If `null`, the new [object] will overwrite
   /// the existing object.
   @override
-  T add<R>(T object, {K key, JoinMethod join}) {
-    assert(object != null);
-
+  T add<R>(T object, {K? key, JoinMethod? join}) {
     if (join == JoinMethod.merge) {
       return merge<R>(object, key: key);
     }
@@ -318,13 +302,11 @@ class JoinableObjectMap<K, T extends JoinableObject<T>>
   ///
   /// If no object exists with the associated [key] and type ([R]),
   /// the [object] will be [add]ed to the map.
-  T combine<R>(T object, {K key}) {
-    assert(object != null);
-
+  T combine<R>(T object, {K? key}) {
     if (exists<R>(key: key)) {
       // Combine the existing object with the new [object].
-      final combinedObject = object.combine(objects[key][R]);
-      objects[key][R] = combinedObject;
+      final combinedObject = object.combine(objects[key]![R]!);
+      objects[key]![R] = combinedObject;
 
       // Provide any associateed change callbacks with the combined object.
       _callChangeCallbacks<R>(combinedObject, key: key);
@@ -344,19 +326,17 @@ class JoinableObjectMap<K, T extends JoinableObject<T>>
   @override
   void addChangeCallback<R>(
     ObjectChanged<T> callback, {
-    K key,
-    JoinMethod joinDynamic,
+    K? key,
+    JoinMethod? joinDynamic,
   }) {
-    assert(callback != null);
-
     if (joinDynamic != null) {
       callback = (object) {
         if (exists<dynamic>(key: key)) {
           final dynamicObject =
-              get<dynamic>(key: key, joinDynamic: joinDynamic);
+              get<dynamic>(key: key, joinDynamic: joinDynamic)!;
           final joinedObject = joinDynamic == JoinMethod.merge
-              ? object.merge(dynamicObject)
-              : object.combine(dynamicObject);
+              ? object!.merge(dynamicObject)
+              : object!.combine(dynamicObject);
 
           callback(joinedObject);
         }
@@ -397,4 +377,4 @@ enum JoinMethod {
 }
 
 /// A callback called when an object in an [ObjectMap] has changed.
-typedef ObjectChanged<T> = void Function(T object);
+typedef ObjectChanged<T> = void Function(T? object);
