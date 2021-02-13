@@ -1,3 +1,3 @@
-## [0.0.1] - February 13, 2021
+## [0.1.0] - February 13, 2021
 
 * Initial release.
