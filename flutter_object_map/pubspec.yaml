@@ -1,0 +1,18 @@
+name: flutter_object_map
+description: >-
+  2-dimensional maps of objects linked by a [Key] and sub-type with
+  explicitly typed methods to add, remove, and update the map.
+version: 0.1.0
+homepage: https://github.com/james-alex/object_map
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  object_map: ^0.1.0
+
+dev_dependencies:
+  pedantic: ^1.9.2
