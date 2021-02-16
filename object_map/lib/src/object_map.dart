@@ -188,7 +188,6 @@ class MergeableObjectMap<K, T extends MergeableObject<T>>
   @override
   T add<R>(T object, {K key, JoinMethod join}) {
     assert(object != null);
-    assert(merge != null);
 
     if (join != null) {
       return merge<R>(object, key: key);
