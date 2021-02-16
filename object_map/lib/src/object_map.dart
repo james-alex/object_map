@@ -193,7 +193,7 @@ class MergeableObjectMap<K, T extends MergeableObject<T>>
       return merge<R>(object, key: key);
     }
 
-    return super.add<R>(object);
+    return super.add<R>(object, key: key);
   }
 
   /// Merges [object] into the existing object with the associated [key]
