@@ -246,6 +246,9 @@ class MergeableObjectMap<K, T extends MergeableObject<T>>
 
     super.addChangeCallback<R>(callback, key: key);
   }
+
+  /// Retrieves the map of objects associated with [key].
+  Map<Type, T> operator [](K key) => objects[key];
 }
 
 /// The base class for objects that can be stored in a [MergeableObjectMap].
