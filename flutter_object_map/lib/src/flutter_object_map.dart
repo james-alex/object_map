@@ -49,56 +49,88 @@ mixin _GetObjectsByAncestorType<T> on s.ObjectMap<Key, T> {
     int depth,
     int limit,
     bool includeDynamic = true,
+    bool includeGeneric = false,
   }) {
     assert(context != null);
     assert(depth == null || depth > 0);
     assert(limit == null || limit > 0);
     assert(includeDynamic != null);
+    assert(includeGeneric != null);
 
+    final foundObjects = <T>[];
+
+    // Adds any objects associated with a `null` key to [foundObjects].
+    void getGenericObjects() {
+      final genericObjects = getObjectsByAncestorType(context,
+          depth: depth, limit: limit, includeDynamic: includeDynamic);
+      if (genericObjects != null) foundObjects.addAll(genericObjects);
+    }
+
+    // If there aren't any objects associated with key...
     if (!objects.containsKey(key)) {
+      if (includeGeneric) {
+        getGenericObjects();
+        return foundObjects;
+      }
       return null;
     }
 
     final types = objects[key].keys.toList();
 
-    if (types.isEmpty) {
-      return null;
-    }
-
-    if (types.length == 1 &&
-        types.first == dynamic &&
-        (T == dynamic || includeDynamic)) {
-      return [objects[key][dynamic]];
-    }
-
-    types.remove(dynamic);
-
-    final foundObjects = <T>[];
-    var currentDepth = 1;
-
-    context.visitAncestorElements((element) {
-      final object = matchAncestorElementByType(element, types,
-          key: key, depth: currentDepth);
-
-      if (object != null) {
-        foundObjects.add(object);
-        types.remove(element.widget.runtimeType);
-      }
-
-      if (types.isEmpty ||
-          (depth != null && currentDepth == depth) ||
-          (limit != null && foundObjects.length == limit)) {
-        return false;
-      }
-
-      currentDepth++;
-
-      return true;
-    });
-
-    if ((limit == null || foundObjects.length < limit) &&
-        exists<dynamic>(key: key)) {
+    // If the only type found was [dynamic], return the assocaited object.
+    if (types.length == 1 && includeDynamic && types.first == dynamic) {
       foundObjects.add(objects[key][dynamic]);
+
+      if (includeGeneric && (limit == null || limit > 1)) {
+        if (limit != null) limit--;
+        getGenericObjects();
+      }
+
+      return foundObjects;
+    }
+
+    // If there are any objects associated with any other types...
+    if (types.isNotEmpty) {
+      types.remove(dynamic);
+
+      // Visit each ancestor, up to [depth] times removed.
+      var currentDepth = 1;
+      context.visitAncestorElements((element) {
+        final object = matchAncestorElementByType(element, types,
+            key: key, depth: currentDepth);
+
+        // If an object with a matching type exists, add it to the list.
+        if (object != null) {
+          foundObjects.add(object);
+          types.remove(element.widget.runtimeType);
+        }
+
+        if (types.isEmpty ||
+            (depth != null && currentDepth == depth) ||
+            (limit != null && foundObjects.length == limit)) {
+          return false;
+        }
+
+        currentDepth++;
+
+        return true;
+      });
+
+      // If [includeDynamic] is `true`, an object assocaited with a
+      // [dynamic] type exists, and the [limit] hasn't been reached,
+      // add it to the end of the list.
+      if (includeDynamic &&
+          (limit == null || foundObjects.length < limit) &&
+          exists<dynamic>(key: key)) {
+        foundObjects.add(objects[key][dynamic]);
+      }
+    }
+
+    // If [includeGeneric] is `true` and the [limit] hasn't been reached,
+    // add any objects associated with a `null` key to the end of the list.
+    if (includeGeneric && (limit == null || foundObjects.length < limit)) {
+      if (limit != null) limit -= foundObjects.length;
+      getGenericObjects();
     }
 
     if (foundObjects.isEmpty) {
@@ -153,13 +185,21 @@ mixin _GetObjectsByAncestorType<T> on s.ObjectMap<Key, T> {
     Key key,
     int depth,
     bool includeDynamic = true,
+    bool includeGeneric = false,
   }) {
     assert(context != null);
     assert(depth == null || depth > 0);
     assert(includeDynamic != null);
+    assert(includeGeneric != null);
 
-    final object = getObjectsByAncestorType(context,
-        key: key, depth: depth, limit: 1, includeDynamic: includeDynamic);
+    final object = getObjectsByAncestorType(
+      context,
+      key: key,
+      depth: depth,
+      limit: 1,
+      includeDynamic: includeDynamic,
+      includeGeneric: includeGeneric,
+    );
 
     if (object == null) {
       return null;
@@ -202,19 +242,32 @@ class MergeableObjectMap<T extends MergeableObject<T>>
     int limit,
     JoinMethod join,
     bool includeDynamic = true,
+    bool includeGeneric = false,
   }) {
     assert(context != null);
     assert(depth == null || depth > 0);
     assert(limit == null || limit > 0);
     assert(includeDynamic != null);
+    assert(includeGeneric != null);
 
     if (join == null) {
-      return super.getObjectByAncestorType(context,
-          key: key, depth: depth, includeDynamic: includeDynamic);
+      return super.getObjectByAncestorType(
+        context,
+        key: key,
+        depth: depth,
+        includeDynamic: includeDynamic,
+        includeGeneric: includeGeneric,
+      );
     }
 
-    final objects = getObjectsByAncestorType(context,
-        key: key, depth: depth, limit: limit, includeDynamic: includeDynamic);
+    final objects = getObjectsByAncestorType(
+      context,
+      key: key,
+      depth: depth,
+      limit: limit,
+      includeDynamic: includeDynamic,
+      includeGeneric: includeGeneric,
+    );
 
     if (objects == null) {
       return null;
@@ -264,19 +317,32 @@ class JoinableObjectMap<T extends JoinableObject<T>>
     int limit,
     JoinMethod join,
     bool includeDynamic = true,
+    bool includeGeneric = false,
   }) {
     assert(context != null);
     assert(depth == null || depth > 0);
     assert(limit == null || limit > 0);
     assert(includeDynamic != null);
+    assert(includeGeneric != null);
 
     if (join == null) {
-      return getObjectByAncestorType(context,
-          key: key, depth: depth, includeDynamic: includeDynamic);
+      return getObjectByAncestorType(
+        context,
+        key: key,
+        depth: depth,
+        includeDynamic: includeDynamic,
+        includeGeneric: includeGeneric,
+      );
     }
 
-    final objects = getObjectsByAncestorType(context,
-        key: key, depth: depth, limit: limit, includeDynamic: includeDynamic);
+    final objects = getObjectsByAncestorType(
+      context,
+      key: key,
+      depth: depth,
+      limit: limit,
+      includeDynamic: includeDynamic,
+      includeGeneric: includeGeneric,
+    );
 
     var joinedObject = objects.removeAt(0);
 

@@ -170,11 +170,22 @@ class MergeableObjectMap<K, T extends MergeableObject<T>>
   /// will be [merge]d with the returned object, if a [dynamic] typed object
   /// exists.
   @override
-  T get<R>({K key, JoinMethod joinDynamic}) {
+  T get<R>({K key, JoinMethod joinDynamic, JoinMethod joinGeneric}) {
     var object = super.get<R>(key: key);
 
     if (R != dynamic && joinDynamic != null && exists<dynamic>(key: key)) {
-      object = object.merge(super.get<dynamic>(key: key));
+      final dynamicObject = super.get<dynamic>(key: key);
+      object = object != null ? object.merge(dynamicObject) : dynamicObject;
+    }
+
+    if (joinGeneric != null) {
+      final genericObject = super.get<R>();
+      object = object != null ? object.merge(genericObject) : genericObject;
+
+      if (R != dynamic && joinDynamic != null && exists<dynamic>()) {
+        final dynamicObject = super.get<dynamic>();
+        object = object != null ? object.merge(dynamicObject) : dynamicObject;
+      }
     }
 
     return object;
@@ -236,11 +247,12 @@ class MergeableObjectMap<K, T extends MergeableObject<T>>
 
     if (joinDynamic != null) {
       callback = (object) {
-        if (exists<dynamic>(key: key)) {
+        if (joinDynamic != null && exists<dynamic>(key: key)) {
           final dynamicObject =
               get<dynamic>(key: key, joinDynamic: joinDynamic);
-          callback(object.merge(dynamicObject));
+          object = object.merge(dynamicObject);
         }
+        callback(object);
       };
     }
 
@@ -280,14 +292,27 @@ class JoinableObjectMap<K, T extends JoinableObject<T>>
   /// will be [merge]d or [combine]d with the returned object, if a [dynamic]
   /// typed object exists.
   @override
-  T get<R>({K key, JoinMethod joinDynamic}) {
+  T get<R>({K key, JoinMethod joinDynamic, JoinMethod joinGeneric}) {
     var object = super.get<R>(key: key);
 
     if (R != dynamic && joinDynamic != null && exists<dynamic>(key: key)) {
-      if (joinDynamic == JoinMethod.merge) {
-        object = object.merge(super.get<dynamic>(key: key));
-      } else {
-        object = object.combine(super.get<dynamic>(key: key));
+      final dynamicObject = super.get<dynamic>(key: key);
+      object = object != null
+          ? object.join(dynamicObject, joinDynamic)
+          : dynamicObject;
+    }
+
+    if (joinGeneric != null) {
+      final genericObject = super.get<R>();
+      object = object != null
+          ? object.join(genericObject, joinGeneric)
+          : genericObject;
+
+      if (R != dynamic && joinDynamic != null && exists<dynamic>()) {
+        final dynamicObject = super.get<dynamic>();
+        object = object != null
+            ? object.join(dynamicObject, joinGeneric)
+            : dynamicObject;
       }
     }
 
@@ -379,6 +404,24 @@ abstract class JoinableObject<T> extends MergeableObject<T> {
   /// Combines [other] into `this` by returning a new object with values
   /// that contain both the values of `this` and other.
   T combine(T other);
+
+  /// [merge]s or [combine]s `this` with [other] depending on [method].
+  T join(T other, JoinMethod method) {
+    assert(method != null);
+
+    T object;
+
+    switch (method) {
+      case JoinMethod.combine:
+        object = combine(other);
+        break;
+      case JoinMethod.merge:
+        object = merge(other);
+        break;
+    }
+
+    return object;
+  }
 }
 
 /// The method used to join objects in a [JoinableObjectMap].
