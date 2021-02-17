@@ -2,7 +2,7 @@ name: flutter_object_map
 description: >-
   2-dimensional maps of objects linked by a [Key] and sub-type with
   explicitly typed methods to add, remove, and update the map.
-version: 1.0.0-nullsafety
+version: 1.0.0-nullsafety+0
 homepage: https://github.com/james-alex/object_map
 
 environment:
@@ -12,7 +12,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  object_map: ^1.0.0-nullsafety
+  object_map: ^1.0.0-nullsafety+0
 
 dev_dependencies:
   pedantic: ^1.9.2
