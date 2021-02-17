@@ -53,8 +53,9 @@ class ObjectMap<K, T> {
   }
 
   /// The map containing every active change callback.
-  final Map<K, Map<Type, List<ObjectChanged<T>>>> _changeCallbacks =
-      <K, Map<Type, List<ObjectChanged<T>>>>{};
+  final Map<K, Map<Type, Map<ObjectChanged<T>, ObjectChanged<T>>>>
+      _changeCallbacks =
+      <K, Map<Type, Map<ObjectChanged<T>, ObjectChanged<T>>>>{};
 
   /// Returns true if there are any change callbacks associated with
   /// the given [key] and type ([R]).
@@ -68,16 +69,16 @@ class ObjectMap<K, T> {
 
     if (_changeCallbacks.containsKey(key)) {
       if (_changeCallbacks[key].containsKey(R)) {
-        _changeCallbacks[key][R].add(callback);
+        _changeCallbacks[key][R].addAll({callback: callback});
       } else {
         _changeCallbacks[key].addAll({
-          R: [callback]
+          R: {callback: callback},
         });
       }
     } else {
       _changeCallbacks.addAll({
         key: {
-          R: [callback]
+          R: {callback: callback},
         }
       });
     }
@@ -140,7 +141,7 @@ class ObjectMap<K, T> {
   void _callChangeCallbacks<R>(T object, {K key}) {
     // Call any associated explicitly typed callbacks.
     if (hasChangeCallback<R>(key: key)) {
-      for (var callback in _changeCallbacks[key][R]) {
+      for (var callback in _changeCallbacks[key][R].values) {
         callback(object);
       }
     }
