@@ -83,7 +83,7 @@ class ObjectMap<K, T> {
     }
   }
 
-  /// Removes the last added change callback associated with the
+  /// Removes the change callback associated with the
   /// given [key] and type ([R]).
   void removeChangeCallback<R>(ObjectChanged<T> callback, {K? key}) {
     if (_changeCallbacks.containsKey(key)) {
@@ -117,8 +117,7 @@ class ObjectMap<K, T> {
     }
   }
 
-  /// Removes the last added global change callback associated
-  /// with the given [key].
+  /// Removes the global change callback associated with the given [key].
   void removeGlobalChangeCallback(ObjectChanged<T> callback, {K? key}) {
     if (_globalChangeCallbacks.containsKey(key)) {
       _globalChangeCallbacks[key]!.remove(callback);
