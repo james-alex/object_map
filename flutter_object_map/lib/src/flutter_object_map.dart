@@ -43,19 +43,16 @@ mixin _GetObjectsByAncestorType<T> on s.ObjectMap<Key, T> {
   /// list.
   ///
   /// Returns `null` if no matching objects are found.
-  List<T> getObjectsByAncestorType(
+  List<T>? getObjectsByAncestorType(
     BuildContext context, {
-    Key key,
-    int depth,
-    int limit,
+    Key? key,
+    int? depth,
+    int? limit,
     bool includeDynamic = true,
     bool includeGeneric = false,
   }) {
-    assert(context != null);
     assert(depth == null || depth > 0);
     assert(limit == null || limit > 0);
-    assert(includeDynamic != null);
-    assert(includeGeneric != null);
 
     final foundObjects = <T>[];
 
@@ -75,11 +72,11 @@ mixin _GetObjectsByAncestorType<T> on s.ObjectMap<Key, T> {
       return null;
     }
 
-    final types = objects[key].keys.toList();
+    final types = objects[key]!.keys.toList();
 
     // If the only type found was [dynamic], return the assocaited object.
     if (types.length == 1 && includeDynamic && types.first == dynamic) {
-      foundObjects.add(objects[key][dynamic]);
+      foundObjects.add(objects[key]![dynamic]!);
 
       if (includeGeneric && (limit == null || limit > 1)) {
         if (limit != null) limit--;
@@ -122,7 +119,7 @@ mixin _GetObjectsByAncestorType<T> on s.ObjectMap<Key, T> {
       if (includeDynamic &&
           (limit == null || foundObjects.length < limit) &&
           exists<dynamic>(key: key)) {
-        foundObjects.add(objects[key][dynamic]);
+        foundObjects.add(objects[key]![dynamic]!);
       }
     }
 
@@ -145,21 +142,23 @@ mixin _GetObjectsByAncestorType<T> on s.ObjectMap<Key, T> {
   /// It is not utilized in the default implementation, but is provided for
   /// use by implementing classes.
   @protected
-  T matchAncestorElementByType(
+  T? matchAncestorElementByType(
     Element element,
     List<Type> types, {
-    Key key,
-    int depth,
+    Key? key,
+    int? depth,
   }) {
-    assert(element != null);
-    assert(types != null && types.isNotEmpty);
-    assert(!types.contains(dynamic));
+    assert(types.isNotEmpty && !types.contains(dynamic));
 
-    T object;
+    if (exists(key: key)) {
+      return null;
+    }
+
+    T? object;
 
     for (var type in types) {
       if (type == element.widget.runtimeType) {
-        object = objects[key][type];
+        object = objects[key]![type];
         break;
       }
     }
@@ -176,17 +175,14 @@ mixin _GetObjectsByAncestorType<T> on s.ObjectMap<Key, T> {
   /// If [includeDynamic] is `true` and no other matching objects were found,
   /// if an object without an explicit [Type] exists, a [dynamic] typed object,
   /// will be returned, otherwise `null` will be returnd.
-  T getObjectByAncestorType(
+  T? getObjectByAncestorType(
     BuildContext context, {
-    Key key,
-    int depth,
+    Key? key,
+    int? depth,
     bool includeDynamic = true,
     bool includeGeneric = false,
   }) {
-    assert(context != null);
     assert(depth == null || depth > 0);
-    assert(includeDynamic != null);
-    assert(includeGeneric != null);
 
     final object = getObjectsByAncestorType(
       context,
@@ -197,11 +193,7 @@ mixin _GetObjectsByAncestorType<T> on s.ObjectMap<Key, T> {
       includeGeneric: includeGeneric,
     );
 
-    if (object == null) {
-      return null;
-    }
-
-    return object.first;
+    return object?.first;
   }
 }
 
@@ -231,20 +223,17 @@ class MergeableObjectMap<T extends MergeableObject<T>>
   ///
   /// Returns `null` if no matching objects are found.
   @override
-  T getObjectByAncestorType(
+  T? getObjectByAncestorType(
     BuildContext context, {
-    Key key,
-    int depth,
-    int limit,
-    JoinMethod join,
+    Key? key,
+    int? depth,
+    int? limit,
+    JoinMethod? join,
     bool includeDynamic = true,
     bool includeGeneric = false,
   }) {
-    assert(context != null);
     assert(depth == null || depth > 0);
     assert(limit == null || limit > 0);
-    assert(includeDynamic != null);
-    assert(includeGeneric != null);
 
     if (join == null) {
       return super.getObjectByAncestorType(
@@ -306,20 +295,17 @@ class JoinableObjectMap<T extends JoinableObject<T>>
   ///
   /// Returns `null` if no matching objects are found.
   @override
-  T getObjectByAncestorType(
+  T? getObjectByAncestorType(
     BuildContext context, {
-    Key key,
-    int depth,
-    int limit,
-    JoinMethod join,
+    Key? key,
+    int? depth,
+    int? limit,
+    JoinMethod? join,
     bool includeDynamic = true,
     bool includeGeneric = false,
   }) {
-    assert(context != null);
     assert(depth == null || depth > 0);
     assert(limit == null || limit > 0);
-    assert(includeDynamic != null);
-    assert(includeGeneric != null);
 
     if (join == null) {
       return getObjectByAncestorType(
@@ -339,6 +325,10 @@ class JoinableObjectMap<T extends JoinableObject<T>>
       includeDynamic: includeDynamic,
       includeGeneric: includeGeneric,
     );
+
+    if (objects == null) {
+      return null;
+    }
 
     var joinedObject = objects.removeAt(0);
 
