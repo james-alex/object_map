@@ -60,7 +60,8 @@ class ObjectMap<K, T> {
   /// Returns true if there are any change callbacks associated with
   /// the given [key] and type ([R]).
   bool hasChangeCallback<R>({K? key}) =>
-      _changeCallbacks.containsKey(key) && _changeCallbacks[key]!.containsKey(R);
+      _changeCallbacks.containsKey(key) &&
+      _changeCallbacks[key]!.containsKey(R);
 
   /// Registers a new change callback associated with the
   /// given [key] and type ([R]).
