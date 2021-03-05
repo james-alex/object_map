@@ -1,3 +1,7 @@
+## [1.0.0] - March 4, 20201
+
+* Migrated to null-safe code.
+
 ## [0.1.2+1] - March 4, 2021
 
 * Fixed [getObjectsByAncestorType], an empty list was being returned instead

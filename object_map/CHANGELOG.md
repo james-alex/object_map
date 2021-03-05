@@ -1,3 +1,7 @@
+## [1.0.0] - March 4, 20201
+
+* Migrated to null-safe code.
+
 ## [0.1.2] - February 16, 2021
 
 * Added functionality to treat `null` keys as generic.
