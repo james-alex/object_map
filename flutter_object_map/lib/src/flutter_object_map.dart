@@ -70,7 +70,7 @@ mixin _GetObjectsByAncestorType<T> on s.ObjectMap<Key, T> {
     if (!objects.containsKey(key)) {
       if (includeGeneric) {
         getGenericObjects();
-        return foundObjects;
+        return foundObjects.isNotEmpty ? foundObjects : null;
       }
       return null;
     }
@@ -86,7 +86,7 @@ mixin _GetObjectsByAncestorType<T> on s.ObjectMap<Key, T> {
         getGenericObjects();
       }
 
-      return foundObjects;
+      return foundObjects.isNotEmpty ? foundObjects : null;
     }
 
     // If there are any objects associated with any other types...
@@ -133,11 +133,7 @@ mixin _GetObjectsByAncestorType<T> on s.ObjectMap<Key, T> {
       getGenericObjects();
     }
 
-    if (foundObjects.isEmpty) {
-      return null;
-    }
-
-    return foundObjects;
+    return foundObjects.isNotEmpty ? foundObjects : null;
   }
 
   /// Checks if [element] matches any of the provided [types].
