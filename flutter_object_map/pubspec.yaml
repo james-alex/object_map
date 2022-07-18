@@ -13,6 +13,7 @@ dependencies:
   flutter:
     sdk: flutter
   object_map: ^1.0.0
+  meta: ^1.7.0
 
 dev_dependencies:
   flutter_lints: ^2.0.1
