@@ -41,7 +41,7 @@ class ObjectMap<K, T> {
     if (objects.containsKey(key)) {
       if (objects[key]!.containsKey(R)) {
         // Remove the object from the map, if it exists.
-        removedObject = objects[key]!.remove(R)!;
+        removedObject = objects[key]!.remove(R) as T;
         if (objects[key]!.isEmpty) objects.remove(key);
 
         // Provide any change callbacks with a `null` value.

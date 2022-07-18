@@ -76,7 +76,7 @@ mixin _GetObjectsByAncestorType<T> on s.ObjectMap<Key, T> {
 
     // If the only type found was [dynamic], return the assocaited object.
     if (types.length == 1 && includeDynamic && types.first == dynamic) {
-      foundObjects.add(objects[key]![dynamic]!);
+      foundObjects.add(objects[key]![dynamic] as T);
 
       if (includeGeneric && (limit == null || limit > 1)) {
         if (limit != null) limit--;
@@ -119,7 +119,7 @@ mixin _GetObjectsByAncestorType<T> on s.ObjectMap<Key, T> {
       if (includeDynamic &&
           (limit == null || foundObjects.length < limit) &&
           exists<dynamic>(key: key)) {
-        foundObjects.add(objects[key]![dynamic]!);
+        foundObjects.add(objects[key]![dynamic] as T);
       }
     }
 
